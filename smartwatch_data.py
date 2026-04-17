@@ -6,31 +6,46 @@ import time
 # Page Setup
 st.set_page_config(
     page_title="Health-Matrix AI",
-    page_icon="⌚",
+    page_icon="🧠",
     layout="wide"
 )
 
-# Styling
+# Futuristic Neon Styling
 st.markdown("""
 <style>
 
 .stApp {
-background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+background: linear-gradient(135deg,#020024,#090979,#00d4ff);
 }
 
 .card {
-background-color: rgba(255,255,255,0.05);
-padding:20px;
-border-radius:15px;
-margin-bottom:15px;
+background: rgba(255,255,255,0.08);
+backdrop-filter: blur(15px);
+padding:22px;
+border-radius:18px;
+margin-bottom:18px;
+border:1px solid rgba(255,255,255,0.15);
+box-shadow:0 0 20px rgba(0,212,255,0.4);
+transition:0.3s;
 }
 
-h1,h2,h3,h4,p,label{
+.card:hover{
+transform: scale(1.02);
+box-shadow:0 0 35px rgba(0,255,255,0.8);
+}
+
+h1{
+color:#00ffff !important;
+text-shadow:0 0 20px #00ffff;
+}
+
+h2,h3,h4,p,label{
 color:white !important;
 }
 
 section[data-testid="stSidebar"] {
-background-color:#081a2b;
+background: linear-gradient(180deg,#000428,#004e92);
+border-right:1px solid rgba(255,255,255,0.2);
 }
 
 </style>
@@ -38,16 +53,16 @@ background-color:#081a2b;
 
 
 # Title
-st.title("⌚ Health-Matrix AI")
-st.subheader("Smartwatch Based Rural Health Monitoring System")
+st.title("🧠 Health-Matrix AI")
+st.subheader("AI Powered Smartwatch Healthcare Monitoring")
 
-st.success("⌚ Smartwatch Connected - Live Monitoring Active")
+st.success("⌚ Smartwatch Connected | Live AI Monitoring Active")
 
 st.markdown("---")
 
 
 # Sidebar Doctors
-st.sidebar.title("👨‍⚕️ Doctor Panel")
+st.sidebar.title("👨‍⚕️ Doctor Control Center")
 
 doctors = [
 "Dr Sharma",
@@ -55,7 +70,9 @@ doctors = [
 "Dr Verma",
 "Dr Mehta",
 "Dr Gupta",
-"Dr Khan"
+"Dr Khan",
+"Dr Reddy",
+"Dr Patel"
 ]
 
 st.sidebar.subheader("Available Doctors")
@@ -64,12 +81,12 @@ for i,doc in enumerate(doctors):
     st.sidebar.write(f"{i+1}. {doc}")
 
 
-# 8 Patients
+# Patients
 patients = [
 "Ramesh Kumar",
-"Sita Devi",
+"Surbhi",
 "Mohan Lal",
-"Radha Sharma",
+"Satyender",
 "Sunita Devi",
 "Rahul Kumar",
 "Anita Sharma",
@@ -89,17 +106,17 @@ for p in patients:
     if hr > 120 or spo2 < 88 or temp > 102:
         status = "Critical"
         priority = 1
-        color = "red"
+        color = "#ff0055"
 
     elif hr > 100 or spo2 < 92 or temp > 100:
         status = "Warning"
         priority = 2
-        color = "orange"
+        color = "#ffaa00"
 
     else:
         status = "Normal"
         priority = 3
-        color = "green"
+        color = "#00ffcc"
 
     doctor = random.choice(doctors)
 
@@ -125,7 +142,7 @@ col1,col2 = st.columns([2,1])
 # Smartwatch Data
 with col1:
 
-    st.subheader("⌚ Live Smartwatch Data")
+    st.subheader("📡 Live Smartwatch Data")
 
     for index,row in df.iterrows():
 
@@ -149,24 +166,24 @@ with col1:
 # Alerts
 with col2:
 
-    st.subheader("🚨 Emergency Alerts")
+    st.subheader("🚨 AI Emergency Alerts")
 
     for index,row in df.iterrows():
 
         if row["Status"] == "Critical":
 
-            st.error(f"Critical : {row['Patient']}")
-            st.success(f"Assigned : {row['Doctor']}")
+            st.error(f"🚨 Critical : {row['Patient']}")
+            st.success(f"👨‍⚕️ Assigned : {row['Doctor']}")
 
         elif row["Status"] == "Warning":
 
-            st.warning(f"Warning : {row['Patient']}")
+            st.warning(f"⚠️ Warning : {row['Patient']}")
 
 
 # Graph
 st.markdown("---")
 
-st.subheader("📈 Live Health Graph")
+st.subheader("📈 AI Health Monitoring Graph")
 
 st.line_chart(df.set_index("Patient")[["HeartRate","Oxygen"]])
 
@@ -174,7 +191,7 @@ st.line_chart(df.set_index("Patient")[["HeartRate","Oxygen"]])
 # Priority
 st.markdown("---")
 
-st.subheader("🚑 Patient Priority")
+st.subheader("🚑 Patient Priority Queue")
 
 priority_df = df.sort_values("Priority")
 
@@ -184,7 +201,7 @@ st.dataframe(priority_df, width="stretch")
 # Footer
 st.markdown("---")
 
-st.caption("Health-Matrix AI | Rural Healthcare Monitoring System")
+st.caption("Health-Matrix AI | Next-Gen Rural Healthcare Monitoring")
 
 
 # Auto Refresh
