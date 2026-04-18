@@ -10,21 +10,21 @@ st.set_page_config(
     layout="wide"
 )
 
-# Professional Medical Styling
+# Improved Professional Styling
 st.markdown("""
 <style>
 
-[data-testid="stAppViewContainer"] {
-background: linear-gradient(180deg,#F5F7FA,#E4ECF7);
+.stApp {
+background: #F5F7FB;
 }
 
-[data-testid="stHeader"] {
-background: rgba(0,0,0,0);
+section[data-testid="stSidebar"] {
+background: #1E3A5F;
+color: white;
 }
 
-[data-testid="stSidebar"] {
-background: linear-gradient(180deg,#1E3A5F,#2C5282);
-color:white;
+section[data-testid="stSidebar"] * {
+color: #E5E7EB !important;
 }
 
 .card {
@@ -32,8 +32,8 @@ background: white;
 padding:20px;
 border-radius:12px;
 margin-bottom:15px;
-box-shadow:0px 2px 8px rgba(0,0,0,0.08);
-border-left:5px solid #2C5282;
+border-left:5px solid #2563EB;
+box-shadow: 0 4px 10px rgba(0,0,0,0.08);
 }
 
 h1{
@@ -41,11 +41,11 @@ color:#1E3A5F !important;
 }
 
 h2,h3{
-color:#2C5282 !important;
+color:#334155 !important;
 }
 
 p,label{
-color:#2D3748 !important;
+color:#475569 !important;
 }
 
 </style>
@@ -79,7 +79,7 @@ for i,doc in enumerate(doctors):
     st.sidebar.write(f"{i+1}. {doc}")
 
 
-# 8 Patients
+# Patients
 patients = [
 "Ramesh Kumar",
 "Rani Devi",
@@ -186,7 +186,7 @@ st.subheader("📈 Live Health Graph")
 st.line_chart(df.set_index("Patient")[["HeartRate","Oxygen"]])
 
 
-# Priority
+# Priority Table
 st.markdown("---")
 
 st.subheader("🚑 Patient Priority")
@@ -199,7 +199,7 @@ st.dataframe(priority_df, width="stretch")
 # Footer
 st.markdown("---")
 
-st.caption("Health-Matrix AI | Rural Healthcare Monitoring System | Team Health-Matrix")
+st.caption("Health-Matrix AI | Smartwatch Based Rural Healthcare Monitoring")
 
 
 # Auto Refresh
