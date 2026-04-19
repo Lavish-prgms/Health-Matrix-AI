@@ -19,17 +19,21 @@ st.markdown("""
 <style>
 
 .stApp {
-background: #F4F6FB;
-color:#0F172A;
+background: #F1F5F9;
+color:#0F172A !important;
 }
+
+/* Sidebar */
 
 section[data-testid="stSidebar"] {
 background: #1E293B;
 }
 
 section[data-testid="stSidebar"] * {
-color: #F1F5F9 !important;
+color: #F8FAFC !important;
 }
+
+/* Cards */
 
 .card {
 background: white;
@@ -38,21 +42,37 @@ border-radius:12px;
 margin-bottom:15px;
 border-left:5px solid #2563EB;
 box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-color:#0F172A;
+color:#020617 !important;
 }
 
-h1{
+/* Headings */
+
+h1 {
+color:#020617 !important;
+font-weight:700 !important;
+}
+
+h2 {
+color:#020617 !important;
+font-weight:600 !important;
+}
+
+h3 {
+color:#020617 !important;
+font-weight:600 !important;
+}
+
+/* Text */
+
+p, span, label, div {
 color:#0F172A !important;
-font-weight:700;
+font-weight:500;
 }
 
-h2,h3{
-color:#1E293B !important;
-font-weight:600;
-}
+/* Table Text */
 
-p, label, span {
-color:#334155 !important;
+[data-testid="stDataFrame"] {
+color:#020617 !important;
 font-weight:500;
 }
 
@@ -69,7 +89,7 @@ st.success("⌚ Smartwatch Connected - Live Monitoring Active")
 st.markdown("---")
 
 
-# Doctors (Levels)
+# Doctors
 critical_doctors = [
 "Dr Sharma (Emergency)",
 "Dr Mehta (ICU)",
@@ -84,16 +104,16 @@ highrisk_doctors = [
 
 moderate_doctors = [
 "Dr Patel",
-"Dr Kumar"
+"Dr Kumar",
+"Dr Nair"
 ]
 
 normal_doctors = [
 "Dr Reddy",
 "Dr Das",
-"Dr Joshi"
+"Dr Joshi",
+"Dr Iyer"
 ]
-
-all_doctors = critical_doctors + highrisk_doctors + moderate_doctors + normal_doctors
 
 
 # Sidebar
@@ -139,29 +159,24 @@ for i,p in enumerate(patients):
     spo2 = random.randint(85,100)
     temp = round(random.uniform(97,103),1)
 
-    # Status Levels
     if hr > 125 or spo2 < 88 or temp > 102:
         status = "Critical"
         priority = 1
-        color = "#DC2626"
         doctor_pool = critical_doctors
 
-    elif hr > 110 or spo2 < 92:
+    elif hr > 110:
         status = "High Risk"
         priority = 2
-        color = "#F97316"
         doctor_pool = highrisk_doctors
 
     elif hr > 95:
         status = "Moderate"
         priority = 3
-        color = "#EAB308"
         doctor_pool = moderate_doctors
 
     else:
         status = "Normal"
         priority = 4
-        color = "#059669"
         doctor_pool = normal_doctors
 
 
@@ -183,6 +198,7 @@ for i,p in enumerate(patients):
             doctor = "Waiting"
             waiting_list.append(p)
 
+
     data.append({
         "S.No": i+1,
         "Patient":p,
@@ -190,9 +206,8 @@ for i,p in enumerate(patients):
         "Oxygen":spo2,
         "Temperature":temp,
         "Status":status,
-        "Priority":priority,
         "Doctor":doctor,
-        "Color":color
+        "Priority":priority
     })
 
 
@@ -203,12 +218,21 @@ df = pd.DataFrame(data)
 col1,col2 = st.columns([2,1])
 
 
-# Smartwatch Cards
+# Cards
 with col1:
 
     st.subheader("⌚ Live Smartwatch Data")
 
     for index,row in df.iterrows():
+
+        if row["Status"] == "Critical":
+            color = "#DC2626"
+        elif row["Status"] == "High Risk":
+            color = "#EA580C"
+        elif row["Status"] == "Moderate":
+            color = "#CA8A04"
+        else:
+            color = "#059669"
 
         st.markdown(f"""
         <div class="card">
@@ -219,7 +243,7 @@ with col1:
         🫁 Oxygen : {row['Oxygen']} % <br>
         🌡 Temperature : {row['Temperature']} °F <br>
 
-        <b style="color:{row['Color']}">
+        <b style="color:{color}">
         Status : {row['Status']}
         </b>
 
@@ -255,40 +279,16 @@ st.subheader("📈 Live Health Graph")
 st.line_chart(df.set_index("Patient")[["HeartRate","Oxygen"]])
 
 
-# Priority Table
+# Table
 st.markdown("---")
 
 st.subheader("🚑 Patient Priority")
 
 priority_df = df.sort_values("Priority")
 
-
-def highlight_status(val):
-
-    if val == "Critical":
-        return 'background-color:#FEE2E2;color:#991B1B'
-
-    elif val == "High Risk":
-        return 'background-color:#FFF7ED;color:#C2410C'
-
-    elif val == "Moderate":
-        return 'background-color:#FEF9C3;color:#854D0E'
-
-    else:
-        return 'background-color:#ECFDF5;color:#065F46'
-
-
-display_df = priority_df.drop(columns=["Color"])
-
-styled_df = display_df.style.applymap(
-    highlight_status,
-    subset=["Status"]
-)
-
 st.dataframe(
-    styled_df,
-    use_container_width=True,
-    height=420
+    priority_df.drop(columns=["Priority"]),
+    use_container_width=True
 )
 
 
