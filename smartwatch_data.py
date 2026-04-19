@@ -10,21 +10,25 @@ st.set_page_config(
     layout="wide"
 )
 
-# Improved Professional Styling
+# Session State
+if "doctor_assignments" not in st.session_state:
+    st.session_state.doctor_assignments = {}
+
+# Dark Professional Styling
 st.markdown("""
 <style>
 
 .stApp {
-background: #F5F7FB;
+background: #F4F6FB;
+color:#0F172A;
 }
 
 section[data-testid="stSidebar"] {
-background: #1E3A5F;
-color: white;
+background: #1E293B;
 }
 
 section[data-testid="stSidebar"] * {
-color: #E5E7EB !important;
+color: #F1F5F9 !important;
 }
 
 .card {
@@ -34,18 +38,22 @@ border-radius:12px;
 margin-bottom:15px;
 border-left:5px solid #2563EB;
 box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+color:#0F172A;
 }
 
 h1{
-color:#1E3A5F !important;
+color:#0F172A !important;
+font-weight:700;
 }
 
 h2,h3{
-color:#334155 !important;
+color:#1E293B !important;
+font-weight:600;
 }
 
-p,label{
-color:#475569 !important;
+p, label, span {
+color:#334155 !important;
+font-weight:500;
 }
 
 </style>
@@ -61,22 +69,51 @@ st.success("⌚ Smartwatch Connected - Live Monitoring Active")
 st.markdown("---")
 
 
-# Sidebar Doctors
-st.sidebar.title("👨‍⚕️ Doctor Panel")
-
-doctors = [
-"Dr Sharma",
-"Dr Singh",
-"Dr Verma",
-"Dr Mehta",
-"Dr Gupta",
-"Dr Khan"
+# Doctors (Levels)
+critical_doctors = [
+"Dr Sharma (Emergency)",
+"Dr Mehta (ICU)",
+"Dr Singh (Critical Care)"
 ]
 
-st.sidebar.subheader("Available Doctors")
+highrisk_doctors = [
+"Dr Verma",
+"Dr Khan",
+"Dr Gupta"
+]
 
-for i,doc in enumerate(doctors):
-    st.sidebar.write(f"{i+1}. {doc}")
+moderate_doctors = [
+"Dr Patel",
+"Dr Kumar"
+]
+
+normal_doctors = [
+"Dr Reddy",
+"Dr Das",
+"Dr Joshi"
+]
+
+all_doctors = critical_doctors + highrisk_doctors + moderate_doctors + normal_doctors
+
+
+# Sidebar
+st.sidebar.title("👨‍⚕️ Doctor Panel")
+
+st.sidebar.subheader("Critical Care")
+for d in critical_doctors:
+    st.sidebar.write(d)
+
+st.sidebar.subheader("High Risk")
+for d in highrisk_doctors:
+    st.sidebar.write(d)
+
+st.sidebar.subheader("Moderate")
+for d in moderate_doctors:
+    st.sidebar.write(d)
+
+st.sidebar.subheader("General")
+for d in normal_doctors:
+    st.sidebar.write(d)
 
 
 # Patients
@@ -94,31 +131,60 @@ patients = [
 
 # Generate Data
 data = []
+waiting_list = []
 
-for p in patients:
+for i,p in enumerate(patients):
 
     hr = random.randint(70,140)
     spo2 = random.randint(85,100)
     temp = round(random.uniform(97,103),1)
 
-    if hr > 120 or spo2 < 88 or temp > 102:
+    # Status Levels
+    if hr > 125 or spo2 < 88 or temp > 102:
         status = "Critical"
         priority = 1
-        color = "red"
+        color = "#DC2626"
+        doctor_pool = critical_doctors
 
-    elif hr > 100 or spo2 < 92 or temp > 100:
-        status = "Warning"
+    elif hr > 110 or spo2 < 92:
+        status = "High Risk"
         priority = 2
-        color = "orange"
+        color = "#F97316"
+        doctor_pool = highrisk_doctors
+
+    elif hr > 95:
+        status = "Moderate"
+        priority = 3
+        color = "#EAB308"
+        doctor_pool = moderate_doctors
 
     else:
         status = "Normal"
-        priority = 3
-        color = "green"
+        priority = 4
+        color = "#059669"
+        doctor_pool = normal_doctors
 
-    doctor = random.choice(doctors)
+
+    # Doctor Assignment
+    if p in st.session_state.doctor_assignments:
+        doctor = st.session_state.doctor_assignments[p]
+
+    else:
+        assigned = False
+
+        for d in doctor_pool:
+            if d not in st.session_state.doctor_assignments.values():
+                doctor = d
+                st.session_state.doctor_assignments[p] = doctor
+                assigned = True
+                break
+
+        if not assigned:
+            doctor = "Waiting"
+            waiting_list.append(p)
 
     data.append({
+        "S.No": i+1,
         "Patient":p,
         "HeartRate":hr,
         "Oxygen":spo2,
@@ -137,7 +203,7 @@ df = pd.DataFrame(data)
 col1,col2 = st.columns([2,1])
 
 
-# Smartwatch Data
+# Smartwatch Cards
 with col1:
 
     st.subheader("⌚ Live Smartwatch Data")
@@ -169,13 +235,16 @@ with col2:
     for index,row in df.iterrows():
 
         if row["Status"] == "Critical":
-
             st.error(f"Critical : {row['Patient']}")
             st.success(f"Assigned : {row['Doctor']}")
 
-        elif row["Status"] == "Warning":
+        elif row["Status"] == "High Risk":
+            st.warning(f"High Risk : {row['Patient']}")
 
-            st.warning(f"Warning : {row['Patient']}")
+    if waiting_list:
+        st.subheader("⏳ Waiting Patients")
+        for w in waiting_list:
+            st.info(w)
 
 
 # Graph
@@ -193,7 +262,34 @@ st.subheader("🚑 Patient Priority")
 
 priority_df = df.sort_values("Priority")
 
-st.dataframe(priority_df, width="stretch")
+
+def highlight_status(val):
+
+    if val == "Critical":
+        return 'background-color:#FEE2E2;color:#991B1B'
+
+    elif val == "High Risk":
+        return 'background-color:#FFF7ED;color:#C2410C'
+
+    elif val == "Moderate":
+        return 'background-color:#FEF9C3;color:#854D0E'
+
+    else:
+        return 'background-color:#ECFDF5;color:#065F46'
+
+
+display_df = priority_df.drop(columns=["Color"])
+
+styled_df = display_df.style.applymap(
+    highlight_status,
+    subset=["Status"]
+)
+
+st.dataframe(
+    styled_df,
+    use_container_width=True,
+    height=420
+)
 
 
 # Footer
